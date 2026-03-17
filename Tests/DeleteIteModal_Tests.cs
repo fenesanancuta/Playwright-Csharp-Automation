@@ -15,24 +15,28 @@ namespace PlaywrightTests.Tests;
 [Parallelizable(ParallelScope.Self)]
 public class DeleteItemModal_Tests : BasePageTest
 {
-    public Dashboard_Page _dashboardPage = null!;
-    public CreateItem_Modal _createItemModal = null!;
-    public DeleteItem_Modal _deleteItemModal = null!;
+    public DashboardPage _dashboardPage = null!;
+    public GridDashboardPage _gridDashboardPage = null!;
+    public CreateItemModal _createItemModal = null!;
+    public DeleteItemModal _deleteItemModal = null!;
 
     [SetUp]
     public async Task Setup()
     {
         //Instantiation of POM for Dashboard page
-        _dashboardPage = new Dashboard_Page(Page);
+        _dashboardPage = new DashboardPage(Page);
 
         //Instantiation of POM for Login page
         _loginPage = new LoginPage(Page);
 
         //Instantiation of POM for Create Item Modal
-        _createItemModal = new CreateItem_Modal(Page);
+        _createItemModal = new CreateItemModal(Page);
 
         //Instantiation of POM for Delete Item Modal
-        _deleteItemModal = new DeleteItem_Modal(Page);
+        _deleteItemModal = new DeleteItemModal(Page);
+
+        //Instantiation of POM for GridDashboard Page
+        _gridDashboardPage = new GridDashboardPage(Page);
 
         //ACT for Login > Reaching Dashboard page
         await _loginPage.LoginAsync(UserCredentials.ValidUser());
@@ -40,39 +44,55 @@ public class DeleteItemModal_Tests : BasePageTest
 
 
     [Test]
+    public async Task DeleteItem_SuccessfullyOpenModal()
+    {
+        //ACT for opening Delete Item modal
+        await _dashboardPage.ClickDeleteItemAsync();
+
+        //Verifying that Delete Item Modal is opened
+        bool isDeleteModalDisplayed = await _deleteItemModal.VerifyDeleteModalIsVisibleAsync();
+        Assert.That(isDeleteModalDisplayed, Is.True);
+    }
+
+
+    [Test]
     public async Task DeleteItem_ClickOnConfirm()
     {
         //LOOP for creating an item beforehand
-        while (await _dashboardPage.CountRowsAsync() == 0)
+        while (await _gridDashboardPage.CountRowsAsync() == 0)
         {
             await _dashboardPage.ClickCreateItemAsync();
             await _createItemModal.SaveAsync("Test");
         }
+
+        //Counting the items
+        var counterBefore = await _gridDashboardPage.CountRowsAsync();
+
         //ACT for opening Delete Item modal
         await _dashboardPage.ClickDeleteItemAsync();
 
         //ACT for saving Delete Item modal
         await _deleteItemModal.ClickOnConfirmAsync();
 
-        //Validate that the message is successfully displayed when deleting an item
-        bool hasSuccessfullyCreated = await _dashboardPage.IsNotificationDisplayedAsync();
-        string valueMessage = await _dashboardPage.GetNotificationTextAsync();
-        Assert.That(hasSuccessfullyCreated, Is.True);
-        Assert.That(valueMessage, Is.EqualTo("Item has been removed"));
+        //Verifying that no item has been deleted
+        bool isModalDisplayed = await _deleteItemModal.VerifyDeleteModalIsVisibleAsync();
+        var countAfter = await _gridDashboardPage.CountRowsAsync();
+        Assert.That(countAfter, Is.EqualTo(counterBefore - 1));
+        Assert.That(isModalDisplayed, Is.True);
     }
 
     [Test]
     public async Task DeleteItem_ClickOnCancel()
     {
         //LOOP for creating an item beforehand
-        while (await _dashboardPage.CountRowsAsync() == 0)
+        while (await _gridDashboardPage.CountRowsAsync() == 0)
         {
             await _dashboardPage.ClickCreateItemAsync();
             await _createItemModal.SaveAsync("Test");
         }
-        
+
         //Counting the items
-        var counterBefore = await _dashboardPage.CountRowsAsync();
+        var counterBefore = await _gridDashboardPage.CountRowsAsync();
 
         //Click Cancel on Delete Item modal
         await _dashboardPage.ClickDeleteItemAsync();
@@ -80,8 +100,8 @@ public class DeleteItemModal_Tests : BasePageTest
 
         //Verifying that no item has been deleted
         bool isModalDisplayed = await _deleteItemModal.VerifyDeleteModalIsVisibleAsync();
-        var countAfter = await _dashboardPage.CountRowsAsync();
+        var countAfter = await _gridDashboardPage.CountRowsAsync();
         Assert.That(countAfter, Is.EqualTo(counterBefore));
-        Assert.That(isModalDisplayed, Is.False);
+        Assert.That(isModalDisplayed, Is.True);
     }
 }

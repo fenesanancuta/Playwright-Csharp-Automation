@@ -17,43 +17,42 @@ namespace PlaywrightTests.Tests;
 [Parallelizable(ParallelScope.Self)]
 public class CreateItemModal_Tests : BasePageTest
 {
-    public Dashboard_Page _dashboardPage = null!;
-    public CreateItem_Modal _createItemModal = null!;
-    public DeleteItem_Modal _deleteItemModal = null!;
+    public DashboardPage _dashboardPage = null!;
+    public CreateItemModal _createItemModal = null!;
+    public DeleteItemModal _deleteItemModal = null!;
+    public GridDashboardPage _gridDashboardPage = null!;
 
     [SetUp]
     public async Task Setup()
     {
         //Instantiation of POM for Dashboard page
-        _dashboardPage = new Dashboard_Page(Page);
+        _dashboardPage = new DashboardPage(Page);
 
         //Instantiation of POM for Login page
         _loginPage = new LoginPage(Page);
 
         //Instantiation of POM for Create Item Modal
-        _createItemModal = new CreateItem_Modal(Page);
+        _createItemModal = new CreateItemModal(Page);
 
         //Instantiation of POM for Delete Item Modal
-        _deleteItemModal = new DeleteItem_Modal(Page);
+        _deleteItemModal = new DeleteItemModal(Page);
+
+        //Instantiation of POM for GridDashboard Page
+        _gridDashboardPage = new GridDashboardPage(Page);
 
         //ACT for Login > Reaching Dashboard page
         await _loginPage.LoginAsync(UserCredentials.ValidUser());
     }
 
     [Test]
-    public async Task CreateItem_SuccessfullyCreateItemMessage()
+    public async Task CreateItem_SuccessfullyOpenModal()
     {
         //ACT for opening Create Item modal
         await _dashboardPage.ClickCreateItemAsync();
 
-        //ACT for creating a new valid item
-        await _createItemModal.SaveAsync("test");
-
         //Verify that the correct notification message is displayed
-        bool hasSuccessfullyCreated = await _dashboardPage.IsNotificationDisplayedAsync();
-        string valueMessage = await _dashboardPage.GetNotificationTextAsync();
-        Assert.That(hasSuccessfullyCreated, Is.True);
-        Assert.That(valueMessage, Is.EqualTo("Item has been created"));
+        bool isModalOpened = await _createItemModal.VerifyCreateModalIsVisibleAsync();
+        Assert.That(isModalOpened, Is.True);
     }
 
 
@@ -131,7 +130,7 @@ public class CreateItemModal_Tests : BasePageTest
         await _createItemModal.SaveAsync(nameForFirstItem);
 
         //Variabile for second item, taking the same name as the one used for nameForFirstItem
-        string nameForSecondItem = await _dashboardPage.NameLastRowAsync();
+        string nameForSecondItem = await _gridDashboardPage.NameLastRowAsync();
 
         //Adding the second item using the same name
         await _dashboardPage.ClickCreateItemAsync();

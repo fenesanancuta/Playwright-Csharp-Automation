@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PlaywrightTests.Pages
 {
-    public class CreateItem_Modal
+    public class CreateItemModal
     {
         private readonly IPage _page;
         private ILocator _headingTitle => _page.GetByRole(AriaRole.Heading, new() { Name = "Create Item" });
@@ -15,7 +15,7 @@ namespace PlaywrightTests.Pages
         private ILocator _saveButton => _page.GetByRole(AriaRole.Button, new() { Name = "Save" });
         private ILocator _errorMessageAlert => _page.GetByRole(AriaRole.Alert);
 
-        public CreateItem_Modal(IPage Page)
+        public CreateItemModal(IPage Page)
         {
             _page = Page;
         }
