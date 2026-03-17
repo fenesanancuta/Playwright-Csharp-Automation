@@ -1,6 +1,9 @@
 # Playwright C# Automation Tests
-
 My first automation testing project for --> https://happy-playpen.lovable.app
+
+## About
+This project was built to practice QA automation skills 
+using the Page Object Model pattern with C# and Playwright.
 
 ## Tech Stack used:
 - C# / .NET 8
